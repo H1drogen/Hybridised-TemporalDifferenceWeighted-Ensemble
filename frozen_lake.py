@@ -1,8 +1,9 @@
 import gymnasium as gym
+from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 
 
 # Initialise the environment
-env = gym.make("LunarLander-v3", render_mode="human")
+env = gym.make('FrozenLake-v1', desc=generate_random_map(size=8), map_name="4x4", is_slippery=True)
 
 observation, info = env.reset()
 
