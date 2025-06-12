@@ -13,7 +13,10 @@ episode_over = False
 while not episode_over:
     action = env.action_space.sample()  # agent policy that uses the observation and info
     observation, reward, terminated, truncated, info = env.step(action)
+    print(f'observation tile: {observation}')
 
     episode_over = terminated or truncated
+
+print('final reward:', reward)
 
 env.close()
