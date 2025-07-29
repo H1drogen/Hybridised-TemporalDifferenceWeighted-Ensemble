@@ -1,6 +1,7 @@
 import gymnasium as gym
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 import numpy as np
+stable_baselines3 = False
 
 
 def run_FL(episode_count=100):
