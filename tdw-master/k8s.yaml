@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tdw
+spec:
+  containers:
+    - name: nnabla-container
+      image: nnabla/nnabla-ext-cuda:py36-cuda100-v1.0.20
+      env:
+      - name: DP_DISABLE_HEALTHCHECKS
+        value: "xids"
+      tty: true
+      resources:
+        limits:
+          nvidia.com/gpu: 1

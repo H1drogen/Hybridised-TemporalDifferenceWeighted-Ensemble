@@ -1,0 +1,5 @@
+logs
+*.pyc
+*__pycache__
+train_logs
+eval_logs
