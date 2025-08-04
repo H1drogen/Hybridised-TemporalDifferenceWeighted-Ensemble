@@ -1,6 +1,7 @@
 import nnabla as nn
 import argparse
-import gym
+import gymnasium as gym
+import ale_py
 import os
 
 from datetime import datetime
@@ -16,6 +17,8 @@ def main(args):
     if args.gpu:
         ctx = get_extension_context('cudnn', device_id='0')
         nn.set_default_context(ctx)
+
+    gym.register_envs(ale_py)
 
     env = AtariWrapper(gym.make(args.env), args.seed, random_start=True)
     num_actions = env.action_space.n
@@ -37,7 +40,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default='BreakoutNoFrameskip-v4')
+    parser.add_argument('--env', type=str, default='ALE/Breakout-v5')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--gamma', type=float, default=0.99)
