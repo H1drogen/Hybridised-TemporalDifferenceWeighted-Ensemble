@@ -9,7 +9,8 @@ from keras.optimizers import Adam
 from Agent import Agent
 
 class DQN_Agent(Agent):
-    def __init__(self, env):
+    def __init__(self, env, name="DQN_Agent"):
+        self.name = name
         self.env = env
         self.replay_memory = deque(maxlen=200000)
 
@@ -46,7 +47,7 @@ class DQN_Agent(Agent):
         #model.add(Dense(48, activation="relu"))
         #model.add(Dense(24, activation="relu"))
         model.add(Dense(self.get_action_space().n, activation='linear'))
-        model.compile(loss="mean_squared_error", optimizer=Adam(lr=self.learning_rate))
+        model.compile(loss="mean_squared_error", optimizer=Adam(learning_rate=self.learning_rate))
         return model
 
     def act(self, state):
@@ -103,3 +104,8 @@ class DQN_Agent(Agent):
         if (self.target_update_counter > self.C):
             self.target_update_counter = 0
             self.target_q_network.set_weights(self.q_network.get_weights())
+
+    def infer(self, obs_t):
+        obs_t = np.array(obs_t).reshape(1, -1)  # Ensure the observation has the correct shape
+        q_values = self.q_network.predict(obs_t) # Perform inference using the Q-network
+        return q_values
