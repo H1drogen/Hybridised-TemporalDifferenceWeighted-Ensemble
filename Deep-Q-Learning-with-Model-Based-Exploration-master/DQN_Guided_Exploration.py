@@ -8,7 +8,8 @@ from DQN_Agent import DQN_Agent
 from scipy import stats
 
 class DQN_Guided_Exploration(DQN_Agent):
-    def __init__(self, env):
+    def __init__(self, env, name="DQN_Guided_Exploration"):
+        self.name = name
         self.env = env
         self.replay_memory = deque(maxlen=200000)
 
@@ -105,7 +106,7 @@ class DQN_Guided_Exploration(DQN_Agent):
         model.add(Dense(24, input_shape=state_shape, activation="relu"))
         model.add(Dense(24, activation="relu"))
         model.add(Dense(self.get_observation_space().shape[0], activation='linear'))
-        model.compile(loss="mean_squared_error", optimizer=Adam(lr=0.02))
+        model.compile(loss="mean_squared_error", optimizer=Adam(learning_rate=0.02))
         return model
 
     def fit_dynamics_model(self):
