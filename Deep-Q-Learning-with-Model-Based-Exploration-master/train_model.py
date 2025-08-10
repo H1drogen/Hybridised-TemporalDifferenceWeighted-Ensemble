@@ -51,5 +51,28 @@ def main():
         plot_state_scatter(agent,title1=f'{env_name} {agent.name}',title2='',xlabel1='position',ylabel1='velocity',xlabel2='x-velocity',ylabel2='y-velocity',color= '#6666ff')
         plot_rewards_and_length(total_reward_list, -200.,0., episode_length_list)
 
+    method = TDWVoteEnsemble(agents)
+
+    def pixel_to_float(obs):
+        return np.array(obs, dtype=np.float32) / 255.0
+
+    def evaluate(env, method, epsilon, rng):
+        obs = env.reset()
+        cumulative_reward = 0.0
+        done = False
+        while not done:
+            action = method.act(pixel_to_float([obs]))
+            if rng.rand() < epsilon:
+                action = rng.randint(env.action_space.n)
+            obs, reward, done, _ = env.step(action)
+            clipped_reward = np.clip(reward, -1.0, 1.0)
+            method.observe(action, pixel_to_float([obs]), clipped_reward, done)
+            cumulative_reward += reward
+        return cumulative_reward
+
+    for i in range(3):
+        reward = evaluate(env, method, epsilon=0.05, rng=np.random.RandomState(0))
+        print('reward: {}'.format(reward))
+
 if __name__ == "__main__":
     main()
