@@ -3,20 +3,6 @@ import matplotlib.ticker as ticker
 import random
 import pandas as pd
 
-def make_multi_env(scenario_name, benchmark=False,done_cb=None):
-    from multiagent.environment import MultiAgentEnv
-    import multiagent.scenarios as scenarios
-
-    # load scenario from script
-    scenario = scenarios.load(scenario_name + ".py").Scenario()
-    # create world
-    world = scenario.make_world()
-    # create multiagent environment
-    if benchmark:
-        env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, scenario.benchmark_data,done_callback=done_cb)
-    else:
-        env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation,done_callback=done_cb)
-    return env
 
 def plot_state_scatter(agent,title1,title2,xlabel1,ylabel1,xlabel2,ylabel2,color, lim1 = [-0.1,0.1,-1.4,0.6],lim2=[-2.0,1.0,-2.0,2.0]):
     fig = plt.figure()
@@ -59,10 +45,10 @@ def plot_state_scatter(agent,title1,title2,xlabel1,ylabel1,xlabel2,ylabel2,color
     sub2.scatter(c,d,s=3,color = color)
 
 
-def plot_rewards_and_length(rewards, min_reward,max_reward, lengths):
+def plot_rewards_and_length(rewards, min_reward,max_reward, lengths, agent_name):
 
     rewards_df = pd.DataFrame(rewards)
-    rewards_df.to_csv('Data/rewards.csv')
+    rewards_df.to_csv(f'Data/rewards_{agent_name}.csv')
 
     fig = plt.figure()
     sub1 = fig.add_subplot(2,2,1)
