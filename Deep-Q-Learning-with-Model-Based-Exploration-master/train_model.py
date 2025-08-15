@@ -1,4 +1,5 @@
 import gym
+import stable_baselines3 as sb3
 import time
 from gym import wrappers
 from DQN_Agent import DQN_Agent
@@ -6,21 +7,26 @@ from DQN_Guided_Exploration import DQN_Guided_Exploration
 from Helpers import plot_rewards_and_length,plot_state_scatter
 import numpy as np
 
+
 from tdw.tdw_ensemble import TDWVoteEnsemble
+
+sac = sb3.SAC("MlpPolicy", "Pendulum-v1", verbose=1, learning_rate=0.001, batch_size=256, buffer_size=1000000, train_freq=1, gradient_steps=1, target_update_interval=1, learning_starts=10000, ent_coef='auto', policy_kwargs=dict(net_arch=[256, 256]), seed=0)
 
 env_name = "CartPole-v0"
 #"Acrobot-v1"#"LunarLander-v2"#"BipedalWalker-v2"#"CartPole-v0"#"HalfCheetah-v2"#MountainCar-v0
 max_episodes = 2
+max_evaluations = 30
 record_video_every = 100
 
 def main():
     env = gym.make(env_name)
     env.reset(seed=0)
-    env = wrappers.Monitor(env, 'replay', video_callable=lambda e: e%record_video_every == 0,force=True)
+    # env = wrappers.Monitor(env, 'replay', video_callable=lambda e: e%record_video_every == 0,force=True)
 
 
     state_shape = (1,env.observation_space.shape[0])
-    agents = [DQN_Agent(env=env), DQN_Guided_Exploration(env=env)]
+    agents = [DQN_Agent(env=env)]
+    agents.append(DQN_Guided_Exploration(env=env))
 
     for agent in agents:
         start_time = time.time()
@@ -50,6 +56,7 @@ def main():
 
         plot_state_scatter(agent,title1=f'{env_name} {agent.name}',title2='',xlabel1='position',ylabel1='velocity',xlabel2='x-velocity',ylabel2='y-velocity',color= '#6666ff')
         plot_rewards_and_length(total_reward_list, -200.,0., episode_length_list)
+    # agents are trained, now we can evaluate the ensemble method
 
     method = TDWVoteEnsemble(agents)
 
@@ -59,6 +66,7 @@ def main():
     def evaluate(env, method, epsilon, rng):
         obs = env.reset()
         cumulative_reward = 0.0
+        cur_state = env.reset().reshape(state_shape)
         done = False
         while not done:
             action = method.act(pixel_to_float([obs]))
@@ -66,11 +74,17 @@ def main():
                 action = rng.randint(env.action_space.n)
             obs, reward, done, _ = env.step(action)
             clipped_reward = np.clip(reward, -1.0, 1.0)
+            new_state = obs.reshape(state_shape)
+            agents[0].update_model(cur_state, action, reward, new_state, done)
+            agents[1].update_model(cur_state, action, reward, new_state, done)
+
+            cur_state = new_state
             method.observe(action, pixel_to_float([obs]), clipped_reward, done)
             cumulative_reward += reward
         return cumulative_reward
 
-    for i in range(3):
+
+    for i in range(max_evaluations):
         reward = evaluate(env, method, epsilon=0.05, rng=np.random.RandomState(0))
         print('reward: {}'.format(reward))
 
