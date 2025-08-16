@@ -122,4 +122,13 @@ def plot_rewards():
     fig = ax.get_figure()  # Get the figure object from the Axes
     fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
-plot_rewards()
+def save_actor_distribution(agent_distribution, path=None):
+    df = pd.DataFrame.from_dict(agent_distribution, orient='index', columns=['count'])
+    df.index.name = 'actor'
+    if path is not None:
+        df.to_csv(path, mode='a', header=False)
+
+def save_rewards_and_length(rewards, lengths, path=None):
+    df = pd.DataFrame({'rewards': rewards, 'lengths': lengths})
+    if path is not None:
+        df.to_csv(path, mode='a', header=False)
