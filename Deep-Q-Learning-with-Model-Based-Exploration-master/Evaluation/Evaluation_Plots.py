@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import random
 import pandas as pd
+import seaborn as sns
 
 
 def plot_state_scatter(agent,title1,title2,xlabel1,ylabel1,xlabel2,ylabel2,color, lim1 = [-0.1,0.1,-1.4,0.6],lim2=[-2.0,1.0,-2.0,2.0]):
@@ -88,3 +89,37 @@ def plot_rewards_and_length(rewards, min_reward,max_reward, lengths, agent_name)
 
 
 
+
+def get_merged_df(prefix, name):
+    sns.set(rc={'figure.figsize': (11.7, 8.27), 'legend.fontsize': 18})
+
+    mountain = ['Data/rewards_400_ours_mountain', 'Data/rewards_400_dqn_mountain', 'Data/rewards_500_pg_mountain']
+    lunar = ['Data/rewards_500_our_lunar', 'Data/rewards_500_dqn_lunar', 'Data/rewards_500_pg_lunar']
+
+    df1 = pd.read_csv(prefix + '_1.csv').iloc[:, 1]
+    df2 = pd.read_csv(prefix + '_2.csv').iloc[:, 1]
+    df3 = pd.read_csv(prefix + '_3.csv').iloc[:, 1]
+    merged = pd.concat([df1, df2, df3], axis=1)
+    merged.columns = [name] * 3
+    return merged
+
+def plot_rewards():
+    a_df = pd.read_csv('../Data/rewards_DQN_Guided_Exploration.csv').iloc[:, 1]
+    b_df = pd.read_csv('../Data/rewards_DQN_Agent.csv').iloc[:, 1]
+    df = pd.concat([a_df, b_df], axis=1)
+    df = df.expanding().mean()
+    df = df.iloc[:500, :]
+    df.tail()
+
+    ax = sns.lineplot(data=df, color="red", dashes=False)
+    # ax.lines[0].set_linestyle("-")
+    # ax.lines[1].set_linestyle("-")
+    # ax.lines[2].set_linestyle("-")
+
+    ax.set_xlabel('Number of training episodes')
+    ax.set_ylabel('Average rewards')
+
+    fig = ax.get_figure()  # Get the figure object from the Axes
+    fig.savefig('plot.png', dpi=300, bbox_inches='tight')
+
+plot_rewards()
