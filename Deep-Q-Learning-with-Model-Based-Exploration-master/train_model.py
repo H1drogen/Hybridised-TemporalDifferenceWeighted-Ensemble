@@ -5,10 +5,12 @@ from DQN_Agent import DQN_Agent
 from DQN_Guided_Exploration import DQN_Guided_Exploration
 from Evaluation.Evaluation_Plots import plot_rewards_and_length, plot_state_scatter, save_actor_distribution, save_rewards_and_length
 import numpy as np
+from tdw.Atari import AtariWrapper
 
 from tdw.tdw_ensemble import TDWVoteEnsemble
 
-env_name = "ALE/Breakout-v5"
+env_name = "LunarLander-v3"
+seed = 0
 # "ALE/Breakout-v5"#"ALE/Asterix-v5"
 #"Acrobot-v1"#"LunarLander-v3"#"BipedalWalker-v2"#"CartPole-v0"#"HalfCheetah-v2"#MountainCar-v0
 max_episodes = 0
@@ -17,14 +19,14 @@ max_evaluations = 100
 def main():
     gym.register_envs(ale_py)
     env = gym.make(env_name)
-    env.reset(seed=0)
+    env.reset(seed=seed)
     # env = wrappers.Monitor(env, 'replay', video_callable=lambda e: e%record_video_every == 0,force=True)
 
 
     state_shape = (1,env.observation_space.shape[0])
     agents = []
     agents.append(DQN_Guided_Exploration(env=env))
-    # agents.append(DQN_Agent(env=env, name='DQN Agent 2'))
+    agents.append(DQN_Agent(env=env, name='DQN Agent'))
 
     for agent in agents:
         start_time = time.time()
@@ -62,6 +64,7 @@ def main():
         return np.array(obs, dtype=np.float32) / 255.0
 
     def atari_evaluation(env, method, epsilon, rng):
+        # env = AtariWrapper(gym.make(env_name), seed, render=False, episodic=False, random_start=True)
         cur_state, _ = env.reset()
         cumulative_reward = 0.0
         agent_distribution = {agent.name: 0 for agent in agents}
@@ -70,7 +73,7 @@ def main():
             action, actor_index = method.act(pixel_to_float([cur_state]))
             if rng.rand() < epsilon:
                 action = rng.randint(env.action_space.n)
-            obs, reward, terminated, truncated, _ = env.step(action)
+            obs, reward, terminated, truncated = env.step(action)
             agent_distribution[agents[actor_index].name] += 1
             clipped_reward = np.clip(reward, -1.0, 1.0)
             agents[actor_index].update_model(cur_state, action, reward, obs, truncated)
@@ -100,11 +103,11 @@ def main():
             agent_distribution[agents[actor_index].name] += 1
             clipped_reward = np.clip(reward, -1.0, 1.0)
             new_state = obs.reshape(state_shape)
-            agents[actor_index].update_model(cur_state, action, reward, new_state, truncated)
+            # agents[actor_index].update_model(cur_state, action, reward, new_state, truncated)
 
             # Update both agents
-            # agents[0].update_model(cur_state, action, reward, new_state, done)
-            # agents[1].update_model(cur_state, action, reward, new_state, done)
+            agents[0].update_model(cur_state, action, reward, new_state, terminated)
+            agents[1].update_model(cur_state, action, reward, new_state, terminated)
 
             cur_state = new_state
             method.observe(action, obs, clipped_reward, truncated)
