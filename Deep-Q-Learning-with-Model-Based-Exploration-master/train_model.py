@@ -25,8 +25,8 @@ def main():
 
     state_shape = (1,env.observation_space.shape[0])
     agents = []
-    agents.append(DQN_Guided_Exploration(env=env))
     agents.append(DQN_Agent(env=env, name='DQN Agent'))
+    agents.append(DQN_Guided_Exploration(env=env))
 
     for agent in agents:
         start_time = time.time()
@@ -103,14 +103,14 @@ def main():
             agent_distribution[agents[actor_index].name] += 1
             clipped_reward = np.clip(reward, -1.0, 1.0)
             new_state = obs.reshape(state_shape)
-            # agents[actor_index].update_model(cur_state, action, reward, new_state, truncated)
+            # agents[actor_index].update_model(cur_state, action, reward, new_state, terminated)
 
             # Update both agents
             agents[0].update_model(cur_state, action, reward, new_state, terminated)
             agents[1].update_model(cur_state, action, reward, new_state, terminated)
 
             cur_state = new_state
-            method.observe(action, obs, clipped_reward, truncated)
+            method.observe(action, obs, clipped_reward, terminated)
             cumulative_reward += reward
 
         save_actor_distribution(agent_distribution, 'Data/actor_distribution.csv')
