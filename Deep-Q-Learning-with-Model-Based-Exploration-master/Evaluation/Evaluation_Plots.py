@@ -128,7 +128,6 @@ def save_actor_distribution(agent_distribution, path=None):
     if path is not None:
         df.to_csv(path, mode='a', header=False)
 
-def save_rewards_and_length(rewards, lengths, path=None):
-    df = pd.DataFrame({'rewards': rewards, 'lengths': lengths})
-    if path is not None:
-        df.to_csv(path, mode='a', header=False)
+def save_rewards_and_length(rewards, path=None):
+    df = pd.DataFrame(rewards)
+    df.to_csv(path, mode='a', header=False)
