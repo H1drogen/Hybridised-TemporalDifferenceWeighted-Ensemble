@@ -1,5 +1,5 @@
 import gymnasium as gym
-import stable_baselines3 as sb3
+import ale_py
 import time
 from DQN_Agent import DQN_Agent
 from DQN_Guided_Exploration import DQN_Guided_Exploration
@@ -8,14 +8,14 @@ import numpy as np
 
 from tdw.tdw_ensemble import TDWVoteEnsemble
 
-sac = sb3.SAC("MlpPolicy", "Pendulum-v1", verbose=1, learning_rate=0.001, batch_size=256, buffer_size=1000000, train_freq=1, gradient_steps=1, target_update_interval=1, learning_starts=10000, ent_coef='auto', policy_kwargs=dict(net_arch=[256, 256]), seed=0)
-
-env_name = "LunarLander-v3"
-#"Acrobot-v1"#"LunarLander-v2"#"BipedalWalker-v2"#"CartPole-v0"#"HalfCheetah-v2"#MountainCar-v0
+env_name = "ALE/Breakout-v5"
+# "ALE/Breakout-v5"#"ALE/Asterix-v5"
+#"Acrobot-v1"#"LunarLander-v3"#"BipedalWalker-v2"#"CartPole-v0"#"HalfCheetah-v2"#MountainCar-v0
 max_episodes = 0
 max_evaluations = 100
 
 def main():
+    gym.register_envs(ale_py)
     env = gym.make(env_name)
     env.reset(seed=0)
     # env = wrappers.Monitor(env, 'replay', video_callable=lambda e: e%record_video_every == 0,force=True)
@@ -40,7 +40,7 @@ def main():
             while not done:
                 steps += 1
                 action = agent.act(cur_state)
-                new_state, reward, done, _ = env.step(action)
+                new_state, reward, done, truncated, _ = env.step(action)
                 new_state = new_state.reshape(state_shape)
                 agent.update_model(cur_state, action, reward, new_state, done)
                 cur_state = new_state
@@ -61,14 +61,39 @@ def main():
     def pixel_to_float(obs):
         return np.array(obs, dtype=np.float32) / 255.0
 
-    def evaluate(env, method, epsilon, rng):
+    def atari_evaluation(env, method, epsilon, rng):
+        cur_state, _ = env.reset()
+        cumulative_reward = 0.0
+        agent_distribution = {agent.name: 0 for agent in agents}
+        terminated = False
+        while not terminated:
+            action, actor_index = method.act(pixel_to_float([cur_state]))
+            if rng.rand() < epsilon:
+                action = rng.randint(env.action_space.n)
+            obs, reward, terminated, truncated, _ = env.step(action)
+            agent_distribution[agents[actor_index].name] += 1
+            clipped_reward = np.clip(reward, -1.0, 1.0)
+            agents[actor_index].update_model(cur_state, action, reward, obs, truncated)
+
+            # Update both agents
+            # agents[0].update_model(cur_state, action, reward, obs, done)
+            # agents[1].update_model(cur_state, action, reward, obs, done)
+
+            cur_state = obs
+            method.observe(action, pixel_to_float([obs]), clipped_reward, truncated)
+            cumulative_reward += reward
+
+        save_actor_distribution(agent_distribution, 'Data/actor_distribution.csv')
+        return cumulative_reward
+
+    def ensemble_training(env, method, epsilon, rng):
         obs, _ = env.reset()
         cumulative_reward = 0.0
         agent_distribution = {agent.name: 0 for agent in agents}
         cur_state = obs.reshape(state_shape)
         terminated = False
         while not terminated:
-            action, actor_index = method.act(pixel_to_float([obs]))
+            action, actor_index = method.act(obs)
             if rng.rand() < epsilon:
                 action = rng.randint(env.action_space.n)
             obs, reward, terminated, truncated, _ = env.step(action)
@@ -82,7 +107,7 @@ def main():
             # agents[1].update_model(cur_state, action, reward, new_state, done)
 
             cur_state = new_state
-            method.observe(action, pixel_to_float([obs]), clipped_reward, truncated)
+            method.observe(action, obs, clipped_reward, truncated)
             cumulative_reward += reward
 
         save_actor_distribution(agent_distribution, 'Data/actor_distribution.csv')
@@ -90,7 +115,10 @@ def main():
 
 
     for i in range(max_evaluations):
-        reward = evaluate(env, method, epsilon=0.05, rng=np.random.RandomState(0))
+        if env_name.startswith("ALE/"):
+            reward = atari_evaluation(env, method, epsilon=0.05, rng=np.random.RandomState(0))
+        else:
+            reward = ensemble_training(env, method, epsilon=0.05, rng=np.random.RandomState(0))
         save_rewards_and_length([reward], 'Data/tdw_rewards.csv')
 
 
