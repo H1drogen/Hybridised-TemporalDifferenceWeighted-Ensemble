@@ -50,6 +50,8 @@ class DQN_Agent(Agent):
         model.compile(loss="mean_squared_error", optimizer=Adam(learning_rate=self.learning_rate))
         return model
 
+
+
     def act(self, state):
         self.actions_count += 1
         self.epsilon *= self.epsilon_decay
@@ -57,6 +59,14 @@ class DQN_Agent(Agent):
         if np.random.random() < self.epsilon or self.actions_count < self.initial_random_steps:
             return self.get_action_space().sample()
         return np.argmax(self.q_network.predict(state)[0])
+
+    def infer(self, obs_t):
+        if isinstance(obs_t, np.ndarray) and obs_t.ndim > 3:
+            return self.q_network.predict(obs_t)
+        obs_t = np.array(obs_t).reshape(1, -1)
+        q_values = self.q_network.predict(obs_t) # Perform inference using the Q-network
+        return q_values
+
 
     def update_model(self, state, action, reward, new_state, done):
         self.replay_memory.append([state, action, reward, new_state, done])
@@ -105,7 +115,3 @@ class DQN_Agent(Agent):
             self.target_update_counter = 0
             self.target_q_network.set_weights(self.q_network.get_weights())
 
-    def infer(self, obs_t):
-        obs_t = np.array(obs_t).reshape(1, -1)  # Ensure the observation has the correct shape
-        q_values = self.q_network.predict(obs_t) # Perform inference using the Q-network
-        return q_values

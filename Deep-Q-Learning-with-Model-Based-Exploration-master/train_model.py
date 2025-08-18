@@ -5,15 +5,20 @@ from DQN_Agent import DQN_Agent
 from DQN_Guided_Exploration import DQN_Guided_Exploration
 from Evaluation.Evaluation_Plots import plot_rewards_and_length, plot_state_scatter, save_actor_distribution, save_rewards_and_length
 import numpy as np
+import pickle
 
 from tdw.tdw_ensemble import TDWVoteEnsemble
 
 env_name = "MountainCar-v0"
+# env_name = "CartPole-v0"
+# env_name = "LunarLander-v3"
 seed = 2
 # "ALE/Breakout-v5"#"ALE/Asterix-v5"
 #"Acrobot-v1"#"LunarLander-v3"#"BipedalWalker-v2"#"CartPole-v0"#"HalfCheetah-v2"#MountainCar-v0
-max_episodes = 0
+initial_training = 1
 max_evaluations = 100
+dqn_path = None
+model_dqn_path = None
 
 def main():
     gym.register_envs(ale_py)
@@ -24,10 +29,23 @@ def main():
 
     state_shape = (1,env.observation_space.shape[0])
     agents = []
-    agents.append(DQN_Agent(env=env, name='DQN Agent'))
-    agents.append(DQN_Guided_Exploration(env=env))
+    if dqn_path is not None:
+        with open(dqn_path, 'rb') as f:
+            agents.append(pickle.load(f))
+    else:
+        agents.append(DQN_Agent(env=env, name='DQN_Agent'))
 
-    for agent in agents:
+    if model_dqn_path is not None:
+        with open(model_dqn_path, 'rb') as f:
+            agents.append(pickle.load(f))
+    else:
+        agents.append(DQN_Guided_Exploration(env=env, name='DQN_Guided_Exploration'))
+
+    method = TDWVoteEnsemble(agents)
+
+
+    def train_agent(agent, env, max_episodes, state_shape):
+        """ Train a single agent on the given environment"""
         start_time = time.time()
         total_reward_list = []
         episode_length_list = []
@@ -54,39 +72,10 @@ def main():
             episode_length_list.append(steps)
             print('episode {} steps: {}, total reward: {},  elapsed time: {}s'.format(episode, steps, total_reward, int(time.time()-start_time)))
 
-        # plot_state_scatter(agent,title1=f'{env_name} {agent.name}',title2='',xlabel1='position',ylabel1='velocity',xlabel2='x-velocity',ylabel2='y-velocity',color= '#6666ff')
-        # plot_rewards_and_length(total_reward_list, -200.,0., episode_length_list, agent.name)
-
-    method = TDWVoteEnsemble(agents)
-
-    def pixel_to_float(obs):
-        return np.array(obs, dtype=np.float32) / 255.0
-
-    def atari_evaluation(env, method, epsilon, rng):
-        # env = AtariWrapper(gym.make(env_name), seed, render=False, episodic=False, random_start=True)
-        cur_state, _ = env.reset(seed=seed)
-        cumulative_reward = 0.0
-        agent_distribution = {agent.name: 0 for agent in agents}
-        terminated = False
-        while not terminated:
-            action, actor_index = method.act(pixel_to_float([cur_state]))
-            if rng.rand() < epsilon:
-                action = rng.randint(env.action_space.n)
-            obs, reward, terminated, truncated, info = env.step(action)
-            agent_distribution[agents[actor_index].name] += 1
-            clipped_reward = np.clip(reward, -1.0, 1.0)
-            agents[actor_index].update_model(cur_state, action, reward, obs, truncated)
-
-            # Update both agents
-            # agents[0].update_model(cur_state, action, reward, obs, done)
-            # agents[1].update_model(cur_state, action, reward, obs, done)
-
-            cur_state = obs
-            method.observe(action, pixel_to_float([obs]), clipped_reward, truncated)
-            cumulative_reward += reward
-
-        save_actor_distribution(agent_distribution, 'Data/actor_distribution.csv')
-        return cumulative_reward
+        plot_state_scatter(agent,title1=f'{env_name} {agent.name}',title2='',xlabel1='position',ylabel1='velocity',xlabel2='x-velocity',ylabel2='y-velocity',color= '#6666ff')
+        plot_rewards_and_length(total_reward_list, -200.,0., episode_length_list, agent.name)
+        with open(f'Data/agents/{agent.name}_{env_name}model_{initial_training}episode.pkl', 'wb') as f:
+            pickle.dump(agent, f)
 
     def ensemble_training(env, method, epsilon, rng):
         obs, _ = env.reset(seed=seed)
@@ -118,6 +107,41 @@ def main():
         return cumulative_reward
 
 
+    def pixel_to_float(obs):
+        return np.array(obs, dtype=np.float32) / 255.0
+
+    def atari_evaluation(env, method, epsilon, rng):
+        # env = AtariWrapper(gym.make(env_name), seed, render=False, episodic=False, random_start=True)
+        cur_state, _ = env.reset(seed=seed)
+        cumulative_reward = 0.0
+        agent_distribution = {agent.name: 0 for agent in agents}
+        terminated = False
+        while not terminated:
+            action, actor_index = method.act(pixel_to_float([cur_state]))
+            if rng.rand() < epsilon:
+                action = rng.randint(env.action_space.n)
+            obs, reward, terminated, truncated, info = env.step(action)
+            agent_distribution[agents[actor_index].name] += 1
+            clipped_reward = np.clip(reward, -1.0, 1.0)
+            agents[actor_index].update_model(cur_state, action, reward, obs, truncated)
+
+            # Update both agents
+            # agents[0].update_model(cur_state, action, reward, obs, done)
+            # agents[1].update_model(cur_state, action, reward, obs, done)
+
+            cur_state = obs
+            method.observe(action, pixel_to_float([obs]), clipped_reward, truncated)
+            cumulative_reward += reward
+
+        save_actor_distribution(agent_distribution, 'Data/actor_distribution.csv')
+        return cumulative_reward
+
+
+    # Train individual agents
+    train_agent(agents[0], env, initial_training, state_shape)
+    train_agent(agents[1], env, initial_training, state_shape)
+
+    # train with ensemble
     for i in range(max_evaluations):
         if env_name.startswith("ALE/"):
             reward = atari_evaluation(env, method, epsilon=0.05, rng=np.random.RandomState(0))
