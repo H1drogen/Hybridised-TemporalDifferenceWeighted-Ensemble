@@ -8,7 +8,7 @@ from DQN_Agent import DQN_Agent
 from scipy import stats
 
 class DQN_Guided_Exploration(DQN_Agent):
-    def __init__(self, env, name="DQN_Guided_Exploration"):
+    def __init__(self, env, name="DQN_Guided_Exploration", gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.9995, learning_rate=0.05):
         self.name = name
         self.env = env
         self.replay_memory = deque(maxlen=200000)
@@ -27,7 +27,7 @@ class DQN_Guided_Exploration(DQN_Agent):
         self.learning_rate = 0.05
         self.target_update_counter = 0
         self.C = 8 # intervcal for updating target network
-        self.initial_random_steps = 10000
+        self.initial_random_steps = 0
         self.actions_count = 0
         self.clip_errors = True
 
