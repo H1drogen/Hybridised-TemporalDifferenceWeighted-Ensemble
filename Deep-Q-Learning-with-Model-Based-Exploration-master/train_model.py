@@ -95,7 +95,7 @@ def main():
             method.observe(action, obs, clipped_reward, terminated)
             cumulative_reward += reward
 
-        save_actor_distribution(agent_distribution, 'Data/actor_distribution.csv')
+        save_actor_distribution(agent_distribution, f'Data/actor_distribution_{seed}.csv')
         return cumulative_reward
 
 
@@ -128,7 +128,7 @@ def main():
             reward = atari_evaluation(env, method, epsilon=0.05, rng=np.random.RandomState(0))
         else:
             reward = ensemble_training(env, method, epsilon=0.05, rng=np.random.RandomState(0))
-        save_rewards_and_length([reward], 'Data/tdw_rewards.csv')
+        save_rewards_and_length([reward], f'Data/tdw_rewards_{seed}.csv')
 
 
 if __name__ == "__main__":

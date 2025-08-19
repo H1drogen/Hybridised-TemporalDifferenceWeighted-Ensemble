@@ -5,6 +5,17 @@ import pandas as pd
 import seaborn as sns
 
 
+def save_actor_distribution(agent_distribution, path=None):
+    df = pd.DataFrame.from_dict(agent_distribution, orient='index', columns=['count'])
+    df.index.name = 'actor'
+    if path is not None:
+        df.to_csv(path, mode='a', header=False)
+
+def save_rewards_and_length(rewards, path=None):
+    df = pd.DataFrame(rewards)
+    df.to_csv(path, mode='a', header=False)
+
+
 def plot_state_scatter(agent,title1,title2,xlabel1,ylabel1,xlabel2,ylabel2,color, lim1 = [-0.1,0.1,-1.4,0.6],lim2=[-2.0,1.0,-2.0,2.0]):
     fig = plt.figure()
 
@@ -122,12 +133,44 @@ def plot_rewards():
     fig = ax.get_figure()  # Get the figure object from the Axes
     fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
-def save_actor_distribution(agent_distribution, path=None):
-    df = pd.DataFrame.from_dict(agent_distribution, orient='index', columns=['count'])
-    df.index.name = 'actor'
-    if path is not None:
-        df.to_csv(path, mode='a', header=False)
 
-def save_rewards_and_length(rewards, path=None):
-    df = pd.DataFrame(rewards)
-    df.to_csv(path, mode='a', header=False)
+
+def plot_actor_distribution(csv_paths):
+    # Read the CSV file
+    ratio_df = pd.DataFrame(columns=['episode', 'ratio0', 'ratio1', 'ratio2', 'mean', 'standard_deviation'])
+
+    for i, path in enumerate(csv_paths):
+        df = pd.read_csv(path, names=['actor', 'count'])
+        df['episode'] = df.index // 2
+
+        for episode, group in df.groupby('episode'):
+            if len(group) == 2:
+                count1, count2 = int(group.iloc[0]['count']), int(group.iloc[1]['count'])
+                ratio = count1 / (count1 + count2)
+                if episode in ratio_df['episode'].values:
+                    ratio_df.loc[ratio_df['episode'] == episode, f'ratio{i}'] = ratio
+                else:
+                    ratio_df = pd.concat([ratio_df, pd.DataFrame({'episode': [episode], f'ratio{i}': [ratio]})], ignore_index=True)
+
+    # Calculate the mean and standard deviation for each episode
+    ratio_df['mean'] = ratio_df[[f'ratio{i}' for i in range(len(csv_paths))]].mean(axis=1)
+    ratio_df['standard_deviation'] = ratio_df[[f'ratio{i}' for i in range(len(csv_paths))]].std(axis=1)
+
+    ratio_df = ratio_df.dropna()
+    episodes = ratio_df['episode'].tolist()
+    mean = np.array(ratio_df['mean'].tolist())
+    standard_deviation = np.array(ratio_df['standard_deviation'].tolist())
+    # Plot the ratios
+    plt.figure(figsize=(10, 6))
+    plt.plot(episodes, mean, marker='o', linestyle='-')
+    plt.fill_between(episodes, mean - standard_deviation, mean + standard_deviation, color='blue', alpha=0.2, label='Standard Deviation')
+    plt.xlabel('Episode')
+    plt.ylabel('Ratio of Model-free to Model-based Agent Activity')
+    plt.title('Actor Distribution Over Episodes')
+    plt.grid(True)
+    plt.show()
+
+actor_distribution_paths = ['/Users/simonh/Downloads/experiments2/Data/actor_distribution_0.csv',
+                            '/Users/simonh/Downloads/experiments2/Data/actor_distribution_1.csv',
+                            '/Users/simonh/Downloads/experiments2/Data/actor_distribution_2.csv']
+plot_actor_distribution(actor_distribution_paths)
