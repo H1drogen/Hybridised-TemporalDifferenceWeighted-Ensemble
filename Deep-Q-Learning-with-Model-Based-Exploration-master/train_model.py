@@ -10,13 +10,13 @@ import pickle
 from tdw.tdw_ensemble import TDWVoteEnsemble
 
 env_name = "CartPole-v0"
-# env_name = "CartPole-v0"
+# env_name = "MountainCar-v0"
 # env_name = "LunarLander-v3"
-seed = 2
-# "ALE/Breakout-v5"#"ALE/Asterix-v5"
-#"Acrobot-v1"#"LunarLander-v3"#"BipedalWalker-v2"#"CartPole-v0"#"HalfCheetah-v2"#MountainCar-v0
+seed = 0
+
 initial_training = 10
 max_evaluations = 100
+
 dqn_path = r'C:\Users\draco\Documents\GitHub\Trivia Quiz\RL-Experiments\Deep-Q-Learning-with-Model-Based-Exploration-master\Data\agents\DQN_Agent_CartPole-v0model_10episode.pkl'
 model_dqn_path = r'C:\Users\draco\Documents\GitHub\Trivia Quiz\RL-Experiments\Deep-Q-Learning-with-Model-Based-Exploration-master\Data\agents\DQN_Guided_Exploration_CartPole-v0model_10episode.pkl'
 
@@ -24,15 +24,9 @@ def main():
     gym.register_envs(ale_py)
     env = gym.make(env_name)
     env.reset(seed=seed)
-    # env = wrappers.Monitor(env, 'replay', video_callable=lambda e: e%record_video_every == 0,force=True)
-
 
     state_shape = (1,env.observation_space.shape[0])
     agents = []
-
-
-
-
 
     def train_agent(agent, env, max_episodes, state_shape):
         """ Train a single agent on the given environment"""
