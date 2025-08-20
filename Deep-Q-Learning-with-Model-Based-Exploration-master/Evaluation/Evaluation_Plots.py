@@ -130,7 +130,7 @@ def plot_rewards():
     # ax.lines[2].set_linestyle("-")
 
     ax.set_xlabel('Number of training episodes')
-    ax.set_ylabel('Average rewards')
+    ax.set_ylabel(' Average rewards')
 
     fig = ax.get_figure()  # Get the figure object from the Axes
     fig.savefig('plot.png', dpi=300, bbox_inches='tight')
@@ -167,12 +167,42 @@ def plot_actor_distribution(csv_paths):
     plt.plot(episodes, mean, marker='o', linestyle='-')
     plt.fill_between(episodes, mean - standard_deviation, mean + standard_deviation, color='blue', alpha=0.2, label='Standard Deviation')
     plt.xlabel('Episode')
-    plt.ylabel('Ratio of Model-free to Model-based Agent Activity')
-    plt.title('Actor Distribution Over Episodes')
+    plt.ylabel('Proportion of Model-free to Model-based Agent Activity')
+    plt.title('MountainCar Actor Distribution ')
     plt.grid(True)
     plt.show()
 
-actor_distribution_paths = ['/Users/simonh/Downloads/experiments2/Data/actor_distribution_0.csv',
-                            '/Users/simonh/Downloads/experiments2/Data/actor_distribution_1.csv',
-                            '/Users/simonh/Downloads/experiments2/Data/actor_distribution_2.csv']
-plot_actor_distribution(actor_distribution_paths)
+def plot_avg_reward_with_std(csv_paths, reward_col=1):
+    # Read rewards from each CSV file
+    rewards = [pd.read_csv(path).iloc[:, reward_col].values for path in csv_paths]
+    min_len = min(map(len, rewards))
+    # Truncate all arrays to the minimum length
+    rewards = np.array([r[:min_len] for r in rewards])
+
+    mean_rewards = rewards.mean(axis=0)
+    std_rewards = rewards.std(axis=0)
+
+    episodes = np.arange(1, min_len + 1)
+    plt.figure(figsize=(10, 6))
+    plt.plot(episodes, mean_rewards, label='Average Reward')
+    plt.fill_between(episodes, mean_rewards - std_rewards, mean_rewards + std_rewards, alpha=0.2, label='Std Dev')
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.title('MountainCar Average Reward (Model-free)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+csv_files = [
+    '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/tdw_rewards_0.csv',
+    '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/tdw_rewards_1.csv',
+    '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/tdw_rewards_2.csv'
+]
+plot_avg_reward_with_std(csv_files)
+
+
+actor_distribution_paths = ['/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/actor_distribution_0.csv',
+                            '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/actor_distribution_1.csv',
+                            '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/actor_distribution_2.csv']
+# plot_actor_distribution(actor_distribution_paths)
+
