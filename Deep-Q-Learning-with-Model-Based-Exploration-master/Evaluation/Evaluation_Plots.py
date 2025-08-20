@@ -5,15 +5,22 @@ import random
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import os
 
 
 def save_actor_distribution(agent_distribution, path=None):
+    if not os.path.exists(path):
+        with open(path, 'w') as f:
+            pass
     df = pd.DataFrame.from_dict(agent_distribution, orient='index', columns=['count'])
     df.index.name = 'actor'
     if path is not None:
         df.to_csv(path, mode='a', header=False)
 
 def save_rewards_and_length(rewards, path=None):
+    if not os.path.exists(path):
+        with open(path, 'w') as f:
+            pass
     df = pd.DataFrame(rewards)
     df.to_csv(path, mode='a', header=False)
 
