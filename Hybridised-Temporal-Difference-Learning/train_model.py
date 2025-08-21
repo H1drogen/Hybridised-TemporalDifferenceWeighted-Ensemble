@@ -17,8 +17,8 @@ seed = 0
 initial_training = 10
 max_evaluations = 100
 
-dqn_path = r'C:\Users\draco\Documents\GitHub\Trivia Quiz\RL-Experiments\Deep-Q-Learning-with-Model-Based-Exploration-master\Data\agents\DQN_Agent_CartPole-v0model_10episode.pkl'
-model_dqn_path = r'C:\Users\draco\Documents\GitHub\Trivia Quiz\RL-Experiments\Deep-Q-Learning-with-Model-Based-Exploration-master\Data\agents\DQN_Guided_Exploration_CartPole-v0model_10episode.pkl'
+dqn_path = None
+model_dqn_path = None
 
 def main():
     gym.register_envs(ale_py)

@@ -205,7 +205,7 @@ csv_files = [
     '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/tdw_rewards_1.csv',
     '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/tdw_rewards_2.csv'
 ]
-plot_avg_reward_with_std(csv_files)
+# plot_avg_reward_with_std(csv_files)
 
 
 actor_distribution_paths = ['/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/actor_distribution_0.csv',
@@ -213,3 +213,15 @@ actor_distribution_paths = ['/Users/simonh/Documents/GitHub/RL-Experiments/Deep-
                             '/Users/simonh/Documents/GitHub/RL-Experiments/Deep-Q-Learning-with-Model-Based-Exploration-master/Data/actor_distribution_2.csv']
 # plot_actor_distribution(actor_distribution_paths)
 
+
+# Load the CSV files
+rewards_agent = pd.read_csv('../Data/rewards_DQN_Agent.csv', header=None)
+rewards_guided = pd.read_csv('../Data/rewards_DQN_Guided_Exploration.csv', header=None)
+
+# Calculate the averages
+average_agent = rewards_agent[1].mean()
+average_guided = rewards_guided[1].mean()
+
+# Print the results
+print(f"Average for rewards_DQN_Agent.csv: {average_agent}")
+print(f"Average for rewards_DQN_Guided_Exploration.csv: {average_guided}")
