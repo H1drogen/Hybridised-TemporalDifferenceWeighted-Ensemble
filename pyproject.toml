@@ -1,0 +1,18 @@
+[project]
+name = "htdw-ensemble"
+version = "0.1.0"
+description = "HTDW makes use of accumulated TD errors to quantify the correctness of a model-based and model-free agent in terms of prediction errors and adjust contributions accordingly, as described in the paper 'Optimisation of Value Function Convergence with Hybridised Reinforcement Learning'"
+authors = [
+    {name = "SimonH",email = "professional.simonhossain@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "gymnasium (>=1.2.0,<2.0.0)",
+    "numpy (>=2.3.2,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
