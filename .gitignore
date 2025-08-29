@@ -105,4 +105,4 @@ venv.bak/
 
 replay/
 .idea/
-/Data/
+/Data/*
