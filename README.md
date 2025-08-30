@@ -1,10 +1,22 @@
 # DQN with Model-Based Exploration
-We proposed Deep Q-Networks (DQN) with model-based exploration, an algorithm
-combining both model-free and model-based approaches that
-explores better and learns environments with sparse rewards more efficiently.
-Detail can be found in the paper: DQN with Model-based exploration.pdf.
 
-### Run the code:
-- Make sure to have installed necessary packages in your python environment.
-- run train_model.py to train.
+This project implements Deep Q-Networks (DQN) enhanced with model-based exploration. The algorithm combines model-free and model-based reinforcement learning to improve exploration and learning efficiency, especially in environments with sparse rewards.
+
+## Features
+
+- Deep Q-Network (DQN) agent
+- Model-based exploration strategy
+- Suitable for environments with sparse rewards
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <your-repo-url>
+   cd <project-directory>
+   
+To train the agent, run:
+   ```bash
+   python train.py --env <environment-name> --episodes <number-of-episodes>
+   ```
 
