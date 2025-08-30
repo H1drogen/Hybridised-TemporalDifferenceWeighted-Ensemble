@@ -215,13 +215,13 @@ actor_distribution_paths = ['/Users/simonh/Documents/GitHub/RL-Experiments/Deep-
 
 
 # Load the CSV files
-rewards_agent = pd.read_csv('../Data/rewards_DQN_Agent.csv', header=None)
-rewards_guided = pd.read_csv('../Data/rewards_DQN_Guided_Exploration.csv', header=None)
+# rewards_agent = pd.read_csv('../Data/rewards_DQN_Agent.csv', header=None)
+# rewards_guided = pd.read_csv('../Data/rewards_DQN_Guided_Exploration.csv', header=None)
 
 # Calculate the averages
-average_agent = rewards_agent[1].mean()
-average_guided = rewards_guided[1].mean()
+# average_agent = rewards_agent[1].mean()
+# average_guided = rewards_guided[1].mean()
 
 # Print the results
-print(f"Average for rewards_DQN_Agent.csv: {average_agent}")
-print(f"Average for rewards_DQN_Guided_Exploration.csv: {average_guided}")
+# print(f"Average for rewards_DQN_Agent.csv: {average_agent}")
+# print(f"Average for rewards_DQN_Guided_Exploration.csv: {average_guided}")
