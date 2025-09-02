@@ -1,22 +1,24 @@
-# DQN with Model-Based Exploration
+# Hybridised Temporal Difference Learning Ensemble with DQN Agents
 
-This project implements Deep Q-Networks (DQN) enhanced with model-based exploration. The algorithm combines model-free and model-based reinforcement learning to improve exploration and learning efficiency, especially in environments with sparse rewards.
-
-## Features
-
-- Deep Q-Network (DQN) agent
-- Model-based exploration strategy
-- Suitable for environments with sparse rewards
+This project implements a hybridised temporal difference learning ensemble using Deep Q-Network (DQN) agents. The ensemble approach combines model-free and model-based DQN agents to improve learning efficiency and performance in reinforcement learning tasks.
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
-   cd <project-directory>
-   
+   git clone https://github.com/H1drogen/Hybridised-TemporalDifferenceWeighted-Ensemble.git
+   cd Hybridised-TemporalDifferenceWeighted-Ensemble
+   ```
+
+2. Install dependencies with Poetry:
+   ```bash
+   poetry install
+    ```
+
+Edit the Settings and Hyperparameters in train_model.py as needed
+
 To train the agent, run:
    ```bash
-   python train.py --env <environment-name> --episodes <number-of-episodes>
+   poetry run python train_model.py
    ```
 
