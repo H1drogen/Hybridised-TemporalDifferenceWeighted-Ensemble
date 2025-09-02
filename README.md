@@ -2,6 +2,11 @@
 
 This project implements a hybridised temporal difference learning ensemble using Deep Q-Network (DQN) agents. The ensemble approach combines model-free and model-based DQN agents to improve learning efficiency and performance in reinforcement learning tasks.
 
+## Requirements
+
+- Python 3.11+
+- Poetry for dependency management
+
 ## Installation
 
 1. Clone the repository:
@@ -15,16 +20,23 @@ This project implements a hybridised temporal difference learning ensemble using
    poetry install
     ```
 
-Edit the Environment and Hyperparameters in train_model.py
+## Configuration
+
+Edit the Environment settings and Hyperparameters in train_model.py
+
 Edit Ensemble Hyperparameters in tdw/tdw_ensemble.py
+
 Edit Agent Hyperparameters in DQN_Agent.py and DQN_Guided_Exploration.py
 
-To train the agent, run:
+
+## Usage
+
+3. To train the agent, run:
    ```bash
    poetry run python train_model.py
    ```
 
-To run Evaluation, run:
+4. To run Evaluation, run:
    ```bash
    poetry run python evaluate_model.py
    ```

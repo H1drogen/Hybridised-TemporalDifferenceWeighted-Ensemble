@@ -40,27 +40,6 @@ class AccumulateErrorEnsemble:
             self.cumulative_errors[i] += error ** 2
         self.prev_qs = next_qs
 
-
-class TDWAverageEnsemble(AccumulateErrorEnsemble):
-    def __init__(self, models, gamma=0.99, decay=1.0, temp=1.0, visualizer=None):
-        self.visualizer = visualizer
-        super().__init__(models, gamma, decay, temp)
-
-    def act(self, obs):
-        self._update_prev_qs(obs)
-
-        weights = self._get_weights()
-
-        if self.visualizer is not None:
-            self.visualizer.update(weights)
-
-        weighted_q = np.reshape(weights, [-1, 1]) * np.array(self.prev_qs)
-        q = np.sum(weighted_q, axis=0)
-        action = np.argmax(q)
-        self.prev_action = action
-        return action
-
-
 class TDWVoteEnsemble(AccumulateErrorEnsemble):
     def __init__(self, models, gamma=0.99, decay=1.0, temp=1.0, visualizer=None):
         self.visualizer = visualizer
