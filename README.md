@@ -15,10 +15,17 @@ This project implements a hybridised temporal difference learning ensemble using
    poetry install
     ```
 
-Edit the Settings and Hyperparameters in train_model.py as needed
+Edit the Environment and Hyperparameters in train_model.py
+Edit Ensemble Hyperparameters in tdw/tdw_ensemble.py
+Edit Agent Hyperparameters in DQN_Agent.py and DQN_Guided_Exploration.py
 
 To train the agent, run:
    ```bash
    poetry run python train_model.py
    ```
 
+To run Evaluation, run:
+   ```bash
+   poetry run python evaluate_model.py
+   ```
+calling any evaluation metrics with the right path to datasets.

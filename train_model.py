@@ -15,7 +15,10 @@ env_name = "CartPole-v0"
 seed = 0
 
 initial_training = 10
-max_evaluations = 100
+ensemble_training = 100
+
+ensemble_epsilon = 0.05
+
 
 dqn_path = None
 model_dqn_path = None
@@ -117,11 +120,11 @@ def main():
     method = TDWVoteEnsemble(agents)
 
     # train with ensemble
-    for i in range(max_evaluations):
+    for i in range(ensemble_training):
         if env_name.startswith("ALE/"):
-            reward = atari_evaluation(env, method, epsilon=0.05, rng=np.random.RandomState(0))
+            reward = atari_evaluation(env, method, epsilon=ensemble_epsilon, rng=np.random.RandomState(0))
         else:
-            reward = ensemble_training(env, method, epsilon=0.05, rng=np.random.RandomState(0))
+            reward = ensemble_training(env, method, epsilon=ensemble_epsilon, rng=np.random.RandomState(0))
         save_rewards_and_length([reward], f'Data/tdw_rewards_{seed}.csv')
 
 

@@ -139,7 +139,7 @@ def plot_rewards():
     ax.set_xlabel('Number of training episodes')
     ax.set_ylabel(' Average rewards')
 
-    fig = ax.get_figure()  # Get the figure object from the Axes
+    fig = ax.get_figure()
     fig.savefig('plot.png', dpi=300, bbox_inches='tight')
 
 
@@ -183,7 +183,6 @@ def plot_avg_reward_with_std(csv_paths, reward_col=1):
     # Read rewards from each CSV file
     rewards = [pd.read_csv(path).iloc[:, reward_col].values for path in csv_paths]
     min_len = min(map(len, rewards))
-    # Truncate all arrays to the minimum length
     rewards = np.array([r[:min_len] for r in rewards])
 
     mean_rewards = rewards.mean(axis=0)
